@@ -15,7 +15,8 @@
     "html2canvas": "^1.4.1",
     "uuid": "^11.1.0",
     "react-markdown": "^10.1.0",
-    "html-to-docx": "^1.8.0"
+    "html-to-docx": "^1.8.0",
+    "jspdf": "2.5.1"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

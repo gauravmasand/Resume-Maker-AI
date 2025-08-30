@@ -1,15 +1,11 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { ResumeData } from '../types';
 import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf'; // <-- CORRECT: Import directly as a module
 import htmlToDocx from 'html-to-docx';
 import { DownloadIcon, ChevronDownIcon } from './icons';
 
-// Declare the global variable provided by the script tag in index.html
-declare global {
-  interface Window {
-    jspdf: any;
-  }
-}
+// REMOVED the "declare global" block as it's no longer needed
 
 interface ResumePreviewProps {
   data: ResumeData;
@@ -39,13 +35,12 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data }) => {
 
     setDownloadDropdownOpen(false);
     const canvas = await html2canvas(element, {
-      scale: 2, // Higher scale for better quality
+      scale: 2,
       useCORS: true,
       logging: false,
     });
     
-    // Access the constructor from the global window object
-    const { jsPDF } = window.jspdf;
+    // CORRECT: Use the imported jsPDF class directly
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'pt',
@@ -203,7 +198,8 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data }) => {
            <SkillLine label="Frameworks & Runtimes" skills={data.skills.frameworks} />
            <SkillLine label="Developer Tools" skills={data.skills.developerTools} />
            <SkillLine label="Libraries" skills={data.skills.libraries} />
-        </PreviewSection>
+        </Previe
+wSection>
 
       </div>
     </div>
