@@ -1,11 +1,9 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { ResumeData } from '../types';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf'; // <-- CORRECT: Import directly as a module
-import htmlToDocx from 'html-to-docx';
-import { DownloadIcon, ChevronDownIcon } from './icons';
 
-// REMOVED the "declare global" block as it's no longer needed
+import React, { useRef } from 'react';
+import { ResumeData } from '../types';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import { DownloadIcon } from './icons';
 
 interface ResumePreviewProps {
   data: ResumeData;
@@ -13,34 +11,17 @@ interface ResumePreviewProps {
 
 const ResumePreview: React.FC<ResumePreviewProps> = ({ data }) => {
   const previewRef = useRef<HTMLDivElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const [isDownloadDropdownOpen, setDownloadDropdownOpen] = useState(false);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setDownloadDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
 
   const handleDownloadPDF = async () => {
     const element = previewRef.current;
     if (!element) return;
 
-    setDownloadDropdownOpen(false);
     const canvas = await html2canvas(element, {
-      scale: 2,
+      scale: 2, // Higher scale for better quality
       useCORS: true,
       logging: false,
     });
     
-    // CORRECT: Use the imported jsPDF class directly
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'pt',
@@ -55,33 +36,6 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data }) => {
     pdf.save(`${data.name.replace(' ', '_')}_Resume.pdf`);
   };
 
-  const handleDownloadDOCX = async () => {
-    const element = previewRef.current;
-    if (!element) return;
-
-    setDownloadDropdownOpen(false);
-    const contentHtml = element.innerHTML;
-    const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${contentHtml}</body></html>`;
-    
-    try {
-      const blob = await (htmlToDocx as any)(fullHtml, null, {
-        orientation: 'portrait',
-        margins: { top: 720, right: 720, bottom: 720, left: 720 },
-      });
-      
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `${data.name.replace(' ', '_')}_Resume.docx`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(link.href);
-    } catch (error) {
-      console.error("Error generating DOCX:", error);
-      alert("An error occurred while generating the DOCX file.");
-    }
-  };
-
   const createLink = (url: string) => {
     if (!url) return '';
     if (url.startsWith('http://') || url.startsWith('https://')) {
@@ -93,39 +47,12 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data }) => {
   return (
     <div className="w-full max-w-4xl flex flex-col items-center">
       <div className="w-full flex justify-end mb-4">
-        <div className="relative" ref={dropdownRef}>
-          <button 
-            onClick={() => setDownloadDropdownOpen(prev => !prev)} 
-            className="flex items-center gap-2 bg-primary-DEFAULT text-white px-6 py-2 rounded-lg hover:bg-primary-hover transition shadow-lg-blue"
-          >
-            <DownloadIcon className="w-5 h-5"/> 
-            <span>Download</span>
-            <ChevronDownIcon className="w-4 h-4" />
-          </button>
-          
-          {isDownloadDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border">
-              <ul className="py-1">
-                <li>
-                  <button 
-                    onClick={handleDownloadPDF} 
-                    className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 flex items-center gap-2"
-                  >
-                    As PDF
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={handleDownloadDOCX} 
-                    className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 flex items-center gap-2"
-                  >
-                    As DOCX (Word)
-                  </button>
-                </li>
-              </ul>
-            </div>
-          )}
-        </div>
+        <button 
+          onClick={handleDownloadPDF} 
+          className="flex items-center gap-2 bg-primary-DEFAULT text-white px-6 py-2 rounded-lg hover:bg-primary-hover transition shadow-lg-blue"
+        >
+          <DownloadIcon className="w-5 h-5"/> Download PDF
+        </button>
       </div>
       <div ref={previewRef} className="bg-white p-10 w-[210mm] min-h-[297mm] shadow-2xl text-sm font-sans text-gray-800">
         <header className="text-center mb-6">
@@ -198,7 +125,6 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data }) => {
            <SkillLine label="Frameworks & Runtimes" skills={data.skills.frameworks} />
            <SkillLine label="Developer Tools" skills={data.skills.developerTools} />
            <SkillLine label="Libraries" skills={data.skills.libraries} />
-        {/* FIX: Corrected typo in closing tag for PreviewSection. */}
         </PreviewSection>
 
       </div>
