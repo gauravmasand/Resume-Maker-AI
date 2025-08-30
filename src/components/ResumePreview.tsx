@@ -1,11 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { ResumeData } from '../types';
 import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf'; // <-- CORRECT: Import directly as a module
+import jsPDF from 'jspdf';
 import htmlToDocx from 'html-to-docx';
 import { DownloadIcon, ChevronDownIcon } from './icons';
-
-// REMOVED the "declare global" block as it's no longer needed
 
 interface ResumePreviewProps {
   data: ResumeData;
@@ -40,7 +38,6 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data }) => {
       logging: false,
     });
     
-    // CORRECT: Use the imported jsPDF class directly
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'pt',
@@ -198,7 +195,6 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data }) => {
            <SkillLine label="Frameworks & Runtimes" skills={data.skills.frameworks} />
            <SkillLine label="Developer Tools" skills={data.skills.developerTools} />
            <SkillLine label="Libraries" skills={data.skills.libraries} />
-        {/* FIX: Corrected typo in closing tag for PreviewSection. */}
         </PreviewSection>
 
       </div>
